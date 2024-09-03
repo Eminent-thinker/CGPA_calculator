@@ -76,7 +76,7 @@ def authenticate_user():
 def main():
     st.title("cGPA Calculator")
 
-    # check if the user is authenticated
+    # Check if the user is authenticated
     if "authenticated" not in st.session_state:
         st.session_state["authenticated"] = False
 
@@ -84,8 +84,9 @@ def main():
         authenticate_user()
         st.stop()
 
-    # Optional: load or create a new session
+    # Optional: Load or create a new session
     load_data = st.checkbox("Load previous session data")
+    courses = []
     if load_data:
         session_data = load_session_data(st.session_state["username"])
         if session_data:
@@ -97,13 +98,13 @@ def main():
     else:
         level = st.selectbox("Select Level", ["100", "200", "300", "400", "500", "600", "700"])
         session_type = st.radio("Select Session Type", ["First Semester", "Second Semester", "Full Session"])
-        courses = []
 
     # course input section
     st.subheader("Course Input")
 
     course_container = st.container()
 
+    # display existing courses if data was loaded
     if load_data and session_data:
         for i, course in enumerate(courses):
             with course_container:
@@ -112,18 +113,25 @@ def main():
                 credit_unit = st.selectbox(f"Credit Unit", credit_units_options, index=credit_units_options.index(course['credit_unit']), key=f"unit_{course['course_code']}_{i}")
                 grade = st.selectbox(f"Grade", list(grade_points.keys()), index=list(grade_points.keys()).index(course['grade']), key=f"grade_{course['course_code']}_{i}")
                 courses[i] = {"course_code": course_code, "course_title": course_title, "credit_unit": credit_unit, "grade": grade}
-    else:
-        num_courses = st.number_input("Number of Courses", min_value=1, max_value=100, value=5, step=1)
 
-        for i in range(num_courses):
-            with course_container:
-                course_code = st.text_input(f"Course Code {i+1}", f"Course {i+1}", key=f"new_code_{i}")
-                course_title = st.text_input(f"Course Title {i+1} (Optional)", key=f"new_title_{i}")
-                credit_unit = st.selectbox(f"Credit Unit {i+1}", credit_units_options, key=f"new_unit_{i}")
-                grade = st.selectbox(f"Grade {i+1}", list(grade_points.keys()), key=f"new_grade_{i}")
+    # only show "Add More Courses" if data was loaded
+    if load_data and session_data:
+        add_more = st.button("Add More Courses")
 
-                # store course details
-                courses.append({"course_code": course_code, "course_title": course_title, "credit_unit": credit_unit, "grade": grade})
+        if add_more:
+            num_courses_to_add = st.number_input("Number of Additional Courses", min_value=1, max_value=100, value=5, step=1)
+            
+            # start indexing new courses from the end of the loaded data
+            new_course_start_index = len(courses)
+            for i in range(num_courses_to_add):
+                with course_container:
+                    course_code = st.text_input(f"New Course Code {new_course_start_index + i + 1}", key=f"new_code_{new_course_start_index + i}")
+                    course_title = st.text_input(f"New Course Title {new_course_start_index + i + 1} (Optional)", key=f"new_title_{new_course_start_index + i}")
+                    credit_unit = st.selectbox(f"New Credit Unit {new_course_start_index + i + 1}", credit_units_options, key=f"new_unit_{new_course_start_index + i}")
+                    grade = st.selectbox(f"New Grade {new_course_start_index + i + 1}", list(grade_points.keys()), key=f"new_grade_{new_course_start_index + i}")
+
+                    # add new course to the list
+                    courses.append({"course_code": course_code, "course_title": course_title, "credit_unit": credit_unit, "grade": grade})
 
     # GPA calculation and display
     if session_type != "Full Session":
@@ -147,3 +155,4 @@ def main():
 
 if __name__ == '__main__':
     main()
+
