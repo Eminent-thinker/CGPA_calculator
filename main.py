@@ -113,7 +113,7 @@ def main():
                 grade = st.selectbox(f"Grade", list(grade_points.keys()), index=list(grade_points.keys()).index(course['grade']), key=f"grade_{course['course_code']}_{i}")
                 courses[i] = {"course_code": course_code, "course_title": course_title, "credit_unit": credit_unit, "grade": grade}
     else:
-        num_courses = st.number_input("Number of Courses", min_value=1, max_value=60, value=5, step=1)
+        num_courses = st.number_input("Number of Courses", min_value=1, max_value=100, value=5, step=1)
 
         for i in range(num_courses):
             with course_container:
