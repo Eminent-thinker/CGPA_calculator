@@ -201,6 +201,8 @@ def main():
 
     if not st.session_state["authenticated"]:
         authenticate_user()  # implement your user authentication logic here
+        if st.session_state["username"] is None:
+            register_user()  # register username if not authenticated
         st.stop()
 
     load_data = st.checkbox("Load previous session data")
